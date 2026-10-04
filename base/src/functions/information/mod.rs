@@ -17,9 +17,14 @@ fn get_system() -> String {
     std::env::consts::OS.to_string()
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "browser"))]
 fn get_system() -> String {
     "browser".to_string()
+}
+
+#[cfg(all(target_arch = "wasm32", not(feature = "browser")))]
+fn get_system() -> String {
+    "wasm".to_string()
 }
 
 impl<'a> Model<'a> {

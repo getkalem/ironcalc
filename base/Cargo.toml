@@ -11,14 +11,24 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+default = ["browser"]
 # Replaces the system clock with the mock in `mock_time.rs` so dependent
 # crates can test volatile functions (NOW, TODAY, ...) deterministically.
 mock_time = []
+# On wasm32, the clock, randomness and time zones of the browser's
+# JavaScript (`js-sys`, `wasm-bindgen`).
+browser = ["dep:js-sys", "dep:wasm-bindgen"]
+# On wasm32 without JavaScript (a WebAssembly component, a plugin): the
+# clock and randomness the embedder gives (`platform::set_clock`,
+# `platform::set_random`), the time zones of `chrono-tz`. Build with
+# `default-features = false, features = ["host"]`.
+host = ["dep:chrono-tz"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 ryu = "1.0"
-chrono = "0.4"
+# Dates only: no clock, so no JavaScript on wasm32 either.
+chrono = { version = "0.4", default-features = false, features = ["std"] }
 bitcode = "0.6.8"
 csv = "1.3.0"
 statrs = { version = "0.18.0", default-features = false, features = [] }
@@ -27,9 +37,10 @@ statrs = { version = "0.18.0", default-features = false, features = [] }
 serde_json = "1.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-js-sys = { version = "0.3.69" }
-wasm-bindgen = { version = "0.2" }
+js-sys = { version = "0.3.69", optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
 regex-lite = { version = "0.1.6" }
+chrono-tz = { version = "0.10", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rand = "0.8.5"

@@ -10,10 +10,15 @@ fn random() -> f64 {
     rand::random()
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "browser"))]
 fn random() -> f64 {
     use js_sys::Math;
     Math::random()
+}
+
+#[cfg(all(target_arch = "wasm32", not(feature = "browser")))]
+fn random() -> f64 {
+    crate::platform::random()
 }
 
 impl<'a> Model<'a> {

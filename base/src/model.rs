@@ -61,10 +61,18 @@ pub fn get_milliseconds_since_epoch() -> i64 {
 /// * The JavaScript environment
 /// * Or mocked for tests
 #[cfg(not(any(test, feature = "mock_time")))]
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "browser"))]
 pub fn get_milliseconds_since_epoch() -> i64 {
     use js_sys::Date;
     Date::now() as i64
+}
+
+/// Number of milliseconds since January 1, 1970, from the embedder's clock
+/// (`platform::set_clock`) in a `host` build.
+#[cfg(not(any(test, feature = "mock_time")))]
+#[cfg(all(target_arch = "wasm32", not(feature = "browser")))]
+pub fn get_milliseconds_since_epoch() -> i64 {
+    crate::platform::milliseconds_since_epoch()
 }
 
 // The structure of a cell.

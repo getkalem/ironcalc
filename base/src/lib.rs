@@ -37,6 +37,7 @@ pub mod formatter;
 pub mod language;
 pub mod locale;
 pub mod new_empty;
+pub mod platform;
 pub mod number_format;
 pub mod themes;
 pub mod types;
@@ -44,6 +45,9 @@ pub mod worksheet;
 
 pub use crate::constants::COLUMN_WIDTH_FACTOR;
 pub use crate::constants::ROW_HEIGHT_FACTOR;
+
+#[cfg(all(target_arch = "wasm32", not(any(feature = "browser", feature = "host"))))]
+compile_error!("on wasm32, ironcalc_base needs the feature `browser` (JavaScript) or `host` (the embedder's clock)");
 
 mod actions;
 mod arithmetic;
